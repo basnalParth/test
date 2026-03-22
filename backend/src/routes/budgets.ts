@@ -48,7 +48,7 @@ router.get('/', async (req: AuthRequest, res: Response): Promise<void> => {
       params.push(Number(year));
     }
 
-    const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+    const whereClause = `WHERE ${conditions.join(' AND ')}`;
     const budgets = await db.all<DbBudget[]>(
       `SELECT * FROM budgets ${whereClause} ORDER BY year DESC, month DESC`,
       params

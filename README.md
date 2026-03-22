@@ -25,7 +25,7 @@ Clone the repository and install dependencies for both the backend and frontend.
 
 ```bash
 git clone <repository-url>
-cd test
+cd <repository-folder>
 ```
 
 #### Backend Setup

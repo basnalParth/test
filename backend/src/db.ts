@@ -61,7 +61,13 @@ export const getDb = async (): Promise<SqliteDatabase> => {
     return dbInstance;
   }
   const databasePath = getDatabasePath();
-  fs.mkdirSync(path.dirname(databasePath), { recursive: true });
+  const databaseDir = path.dirname(databasePath);
+  try {
+    fs.mkdirSync(databaseDir, { recursive: true });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to create database directory at ${databaseDir}: ${message}`);
+  }
   dbInstance = await open({
     filename: databasePath,
     driver: sqlite3.Database,

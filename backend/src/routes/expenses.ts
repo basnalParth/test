@@ -84,7 +84,7 @@ router.get('/', async (req: AuthRequest, res: Response): Promise<void> => {
       params.push(likeQuery, likeQuery);
     }
 
-    const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+    const whereClause = `WHERE ${conditions.join(' AND ')}`;
     const expenses = await db.all<DbExpense[]>(
       `SELECT * FROM expenses ${whereClause} ORDER BY date DESC`,
       params
