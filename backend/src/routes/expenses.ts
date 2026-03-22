@@ -123,7 +123,11 @@ router.post(
       };
 
       const now = new Date().toISOString();
-      const expenseDate = date ? new Date(date).toISOString() : now;
+      const expenseDate = date ? normalizeDate(date) : now;
+      if (date && !expenseDate) {
+        res.status(400).json({ error: 'Invalid date format' });
+        return;
+      }
       const expenseId = randomUUID();
       const db = await getDb();
 
@@ -211,8 +215,13 @@ const updateExpense = async (
       params.push(description ? description.trim() : null);
     }
     if (date !== undefined) {
+      const normalizedDate = normalizeDate(date);
+      if (!normalizedDate) {
+        res.status(400).json({ error: 'Invalid date format' });
+        return;
+      }
       fields.push('date = ?');
-      params.push(new Date(date).toISOString());
+      params.push(normalizedDate);
     }
 
     fields.push('updatedAt = ?');
