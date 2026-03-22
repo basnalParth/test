@@ -15,6 +15,12 @@ export interface IExpense extends Document {
   title: string;
   amount: number;
   category: ExpenseCategory;
+import { Schema, model, Document } from 'mongoose';
+
+interface IExpense extends Document {
+  userId: string;
+  category: string;
+  amount: number;
   description?: string;
   date: Date;
   createdAt: Date;
@@ -38,3 +44,14 @@ const ExpenseSchema = new Schema<IExpense>(
 );
 
 export default mongoose.model<IExpense>('Expense', ExpenseSchema);
+const expenseSchema = new Schema<IExpense>({
+  userId: { type: String, required: true, index: true },
+  category: { type: String, required: true },
+  amount: { type: Number, required: true, min: 0 },
+  description: { type: String },
+  date: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+export default model<IExpense>('Expense', expenseSchema);
