@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 
 import authRoutes from './routes/auth';
 import expenseRoutes from './routes/expenses';
+import budgetRoutes from './routes/budgets';
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use(morgan('dev'));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/expenses', expenseRoutes);
+app.use('/api/budgets', budgetRoutes);
 
 // Health check
 app.get('/health', (_req, res) => {
