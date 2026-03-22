@@ -1,7 +1,18 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
-import User from '../models/User';
+import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
+import { getDb } from '../db';
+
+interface DbUser {
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const router = Router();
 
@@ -10,6 +21,8 @@ const getJwtSecret = (): string => {
   if (!secret) throw new Error('JWT_SECRET environment variable is required');
   return secret;
 };
+
+const sanitizeEmail = (email: string): string => email.trim().toLowerCase();
 
 // POST /api/auth/register
 router.post(
@@ -28,20 +41,33 @@ router.post(
 
     try {
       const { name, email, password } = req.body as { name: string; email: string; password: string };
+      const normalizedEmail = sanitizeEmail(email);
+      const db = await getDb();
 
-      const existing = await User.findOne({ email });
+      const existing = await db.get<DbUser>('SELECT * FROM users WHERE email = ?', normalizedEmail);
       if (existing) {
         res.status(409).json({ error: 'Email already in use' });
         return;
       }
 
-      const user = new User({ name, email, password });
-      await user.save();
+      const now = new Date().toISOString();
+      const userId = randomUUID();
+      const passwordHash = await bcrypt.hash(password, 10);
+
+      await db.run(
+        'INSERT INTO users (id, name, email, passwordHash, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)',
+        userId,
+        name.trim(),
+        normalizedEmail,
+        passwordHash,
+        now,
+        now
+      );
 
       const secret = getJwtSecret();
-      const token = jwt.sign({ userId: user._id }, secret, { expiresIn: '7d' });
+      const token = jwt.sign({ userId }, secret, { expiresIn: '7d' });
 
-      res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email } });
+      res.status(201).json({ token, user: { id: userId, name: name.trim(), email: normalizedEmail } });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Registration failed' });
@@ -65,87 +91,24 @@ router.post(
 
     try {
       const { email, password } = req.body as { email: string; password: string };
+      const normalizedEmail = sanitizeEmail(email);
+      const db = await getDb();
 
-      const user = await User.findOne({ email });
-      if (!user || !(await user.comparePassword(password))) {
+      const user = await db.get<DbUser>('SELECT * FROM users WHERE email = ?', normalizedEmail);
+      if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
         res.status(401).json({ error: 'Invalid credentials' });
         return;
       }
 
       const secret = getJwtSecret();
-      const token = jwt.sign({ userId: user._id }, secret, { expiresIn: '7d' });
+      const token = jwt.sign({ userId: user.id }, secret, { expiresIn: '7d' });
 
-      res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
+      res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Login failed' });
     }
   }
 );
-
-export default router;
-import User from '../models/User';
-import { generateToken } from '../middleware/auth';
-
-const router = Router();
-
-// Register
-router.post('/register', [
-  body('email').isEmail(),
-  body('password').isLength({ min: 6 }),
-  body('name').notEmpty()
-], async (req: Request, res: Response) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  try {
-    const { email, password, name } = req.body;
-    
-    let user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
-
-    user = new User({ email, password, name });
-    await user.save();
-
-    const token = generateToken(user._id.toString());
-    res.status(201).json({ token, user: { id: user._id, email: user.email, name: user.name } });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// Login
-router.post('/login', [
-  body('email').isEmail(),
-  body('password').notEmpty()
-], async (req: Request, res: Response) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    const token = generateToken(user._id.toString());
-    res.json({ token, user: { id: user._id, email: user.email, name: user.name } });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
 
 export default router;
