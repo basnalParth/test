@@ -1,4 +1,4 @@
-# Expense Tracker Application
+# Expense-Tracker Application
 
 ## Overview
 The Expense Tracker Application helps users manage personal finances by tracking expenses, organizing them by category, and monitoring budgets over time.
