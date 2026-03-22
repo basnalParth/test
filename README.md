@@ -63,14 +63,3 @@ The frontend will connect to the backend API (default: `http://localhost:5000`).
 ## SQLite Storage
 The backend stores data in a local SQLite file. By default, the database file is created at `backend/data/expense-tracker.sqlite`. You can override this location using the `SQLITE_DB_PATH` environment variable.
 
-## Useful Scripts
-
-### Backend
-- `npm run dev` – Start the API with hot reload
-- `npm run build` – Compile TypeScript
-- `npm start` – Run the compiled server
-
-### Frontend
-- `npm run dev` – Start the Vite dev server
-- `npm run build` – Build the production bundle
-- `npm run lint` – Run ESLint
