@@ -33,7 +33,7 @@ const mapExpense = (expense: DbExpense) => ({
 const normalizeDate = (value?: string): string | null => {
   if (!value) return null;
   const parsedDate = new Date(value);
-  if (Number.isNaN(parsedDate.getTime())) {
+  if (isNaN(parsedDate.getTime())) {
     return null;
   }
   return parsedDate.toISOString();

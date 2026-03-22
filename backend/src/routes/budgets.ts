@@ -148,7 +148,7 @@ router.get('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
 router.put(
   '/:id',
   [
-    body('category').optional().trim().notEmpty().withMessage('Category cannot be empty'),
+    body('category').if(body('category').exists()).trim().notEmpty().withMessage('Category cannot be empty'),
     body('limit').optional().isFloat({ min: 0 }).withMessage('Limit must be a non-negative number'),
     body('month').optional().isInt({ min: 1, max: 12 }).withMessage('Month must be between 1 and 12'),
     body('year').optional().isInt({ min: 2000 }).withMessage('Year must be 2000 or later'),
