@@ -1,20 +1,76 @@
 # Expense Tracker Application
 
 ## Overview
-The Expense Tracker Application is designed to help users manage their personal finances by tracking their income and expenses efficiently.
+The Expense Tracker Application helps users manage personal finances by tracking expenses, organizing them by category, and monitoring budgets over time.
 
 ## Features
-- Add and categorize expenses
-- View total expenses by category
-- Generate reports for specific time periods
-- Set and track budget limits
+- Add, edit, and delete expenses
+- Categorize transactions and view totals by category
+- Track budgets by month and year
+- Secure authentication with JWT
 
-## Technologies Used
-- JavaScript
-- HTML/CSS
-- Node.js
-- Express
-- MongoDB
+## Technology Stack
+- **Frontend:** React, TypeScript, Vite, Tailwind CSS
+- **Backend:** Node.js, Express, TypeScript
+- **Database:** SQLite (local file)
 
 ## Getting Started
-Clone the repository and run the application locally to start tracking your expenses!
+
+### Prerequisites
+- Node.js (18+ recommended)
+- npm
+
+### Installation
+Clone the repository and install dependencies for both the backend and frontend.
+
+```bash
+git clone <repository-url>
+cd test
+```
+
+#### Backend Setup
+```bash
+cd backend
+npm install
+cp .env.example .env
+```
+
+Update `.env` as needed:
+```
+PORT=5000
+JWT_SECRET=replace-with-a-secure-secret
+SQLITE_DB_PATH=./data/expense-tracker.sqlite
+```
+
+Start the backend in development mode:
+```bash
+npm run dev
+```
+
+#### Frontend Setup
+```bash
+cd ../frontend
+npm install
+```
+
+Start the frontend:
+```bash
+npm run dev
+```
+
+The frontend will connect to the backend API (default: `http://localhost:5000`).
+
+## SQLite Storage
+The backend stores data in a local SQLite file. By default, the database file is created at `backend/data/expense-tracker.sqlite`. You can override this location using the `SQLITE_DB_PATH` environment variable.
+
+## Useful Scripts
+
+### Backend
+- `npm run dev` – Start the API with hot reload
+- `npm run build` – Compile TypeScript
+- `npm start` – Run the compiled server
+
+### Frontend
+- `npm run dev` – Start the Vite dev server
+- `npm run build` – Build the production bundle
+- `npm run lint` – Run ESLint
