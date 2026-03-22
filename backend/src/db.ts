@@ -16,7 +16,6 @@ const getDatabasePath = (): string => {
 };
 
 const initializeSchema = async (db: SqliteDatabase): Promise<void> => {
-  await db.exec('PRAGMA foreign_keys = ON;');
   await db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
@@ -67,6 +66,7 @@ export const getDb = async (): Promise<SqliteDatabase> => {
     filename: databasePath,
     driver: sqlite3.Database,
   });
+  await dbInstance.exec('PRAGMA foreign_keys = ON;');
   await initializeSchema(dbInstance);
   return dbInstance;
 };

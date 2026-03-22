@@ -32,11 +32,11 @@ const mapExpense = (expense: DbExpense) => ({
 
 const normalizeDate = (value?: string): string | null => {
   if (!value) return null;
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) {
     return null;
   }
-  return parsed.toISOString();
+  return parsedDate.toISOString();
 };
 
 // All routes require authentication
@@ -134,7 +134,7 @@ router.post(
         title.trim(),
         amount,
         category,
-        description?.trim() ?? null,
+        description ? description.trim() : null,
         expenseDate,
         now,
         now
@@ -208,7 +208,7 @@ const updateExpense = async (
     }
     if (description !== undefined) {
       fields.push('description = ?');
-      params.push(description?.trim() ?? null);
+      params.push(description ? description.trim() : null);
     }
     if (date !== undefined) {
       fields.push('date = ?');
